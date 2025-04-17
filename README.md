@@ -29,7 +29,9 @@ Latitude ve Longitude: Koordinatlar, merkezi bir konumdan (41.015137, 28.979530)
 
 Altitude: Yükseklik, 100 ile 200 metre arasında rastgele bir değerle belirlenir.
 
-GPS Koordinatları: Latitude ve Longitude birleşimi, %.6f, %.6f formatında bir string olarak döndürülür.
+GPS Koordinatları: Latitude ve Longitude birleşimi bir string olarak döndürülür.
+
+Google Maps ve Google Location kütüphaneleri gelen gps verilerinin anlık haritada gösterimini sağlamak için kullanıldı.
 
 Flight Time: Uçuş süresi, rastgele bir dakika ve saniye ile oluşturulmuş bir saati HH:mm:ss formatında döndürür.
 
