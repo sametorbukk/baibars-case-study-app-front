@@ -15,6 +15,9 @@ navigationUiKtx = "2.8.9"
 retrofit = "2.9.0"
 coroutines = "1.7.0"
 gsonConverter = "2.9.0"
+activity = "1.8.0"
+playServicesMaps = "19.2.0"
+
 
 
 [libraries]
@@ -32,7 +35,10 @@ androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 retrofit-gson-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "gsonConverter" }
-
+google-maps = { group = "com.google.android.gms", name = "play-services-maps", version = "17.0.1" }
+google-location = { group = "com.google.android.gms", name = "play-services-location", version = "17.0.0" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
