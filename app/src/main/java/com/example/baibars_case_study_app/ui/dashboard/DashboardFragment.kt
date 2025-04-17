@@ -31,6 +31,7 @@ class DashboardFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mapView: MapView
     private lateinit var mMap: GoogleMap
     private var currentLocation: LatLng = LatLng(41.015137, 28.979530)
+    private var currentMarker: com.google.android.gms.maps.model.Marker? = null
 
 
     private val binding get() = _binding!!
@@ -63,7 +64,10 @@ class DashboardFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
-        mMap.addMarker(MarkerOptions().position(currentLocation).title("Başlangıç Noktası"))
+        currentMarker = mMap.addMarker(MarkerOptions()
+            .position(currentLocation)
+            .title("Başlangıç Noktası")
+            .draggable(false))
     }
 
     private fun startFetchingTelemetry() {
@@ -80,23 +84,38 @@ class DashboardFragment : Fragment(), OnMapReadyCallback {
                         binding.altitudeText.text = "Altitude: ${data.altitude}m"
                         binding.flightTimeText.text = "Flight Time: ${data.flightTime}"
 
-                        // Update map location
-                        val coordinates = data.gpsCoordinates.split(",")
-                        if (coordinates.size == 2) {
-                            val lat = coordinates[0].trim().toDoubleOrNull()
-                            val lng = coordinates[1].trim().toDoubleOrNull()
-                            if (lat != null && lng != null) {
-                                val newLocation = LatLng(lat, lng)
-                                mMap.moveCamera(CameraUpdateFactory.newLatLng(newLocation))
-                                mMap.clear()
-                                mMap.addMarker(MarkerOptions().position(newLocation).title("Current Location"))
+
+                        try {
+                            val coordinates = data.gpsCoordinates.split(",")
+                            if (coordinates.size == 2) {
+                                val lat = coordinates[0].trim().toDoubleOrNull()
+                                val lng = coordinates[1].trim().toDoubleOrNull()
+
+                                Log.d("MapUpdate", "Parsed coordinates - lat: $lat, lng: $lng")
+
+                                if (lat != null && lng != null) {
+                                    val newLocation = LatLng(lat, lng)
+                                    Log.d("MapUpdate", "Moving to new location: $newLocation")
+
+
+                                    currentMarker?.position = newLocation
+
+
+                                    mMap.animateCamera(CameraUpdateFactory.newLatLng(newLocation))
+                                } else {
+                                    Log.e("MapUpdate", "Failed to parse coordinates: ${data.gpsCoordinates}")
+                                }
+                            } else {
+                                Log.e("MapUpdate", "Invalid coordinates format: ${data.gpsCoordinates}")
                             }
+                        } catch (e: Exception) {
+                            Log.e("MapUpdate", "Error updating map location", e)
                         }
                     }
 
                     Log.d("TelemetryData", "Gelen veri: $data")
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e("TelemetryData", "Error fetching telemetry data", e)
                 }
 
                 delay(3000)
