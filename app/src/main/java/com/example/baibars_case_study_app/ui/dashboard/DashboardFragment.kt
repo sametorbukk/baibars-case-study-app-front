@@ -64,10 +64,31 @@ class DashboardFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
-        currentMarker = mMap.addMarker(MarkerOptions()
-            .position(currentLocation)
-            .title("Başlangıç Noktası")
-            .draggable(false))
+        currentMarker = mMap.addMarker(
+            MarkerOptions()
+                .position(currentLocation)
+                .title("Başlangıç Noktası")
+                .draggable(false)
+        )
+    }
+
+    private fun parseCoordinates(coordinates: String): LatLng? {
+        try {
+
+            val parts = coordinates.split(", ")
+            if (parts.size != 2) return null
+
+
+            val lat = parts[0].replace(",", ".").toDoubleOrNull()
+            val lng = parts[1].replace(",", ".").toDoubleOrNull()
+
+            if (lat != null && lng != null) {
+                return LatLng(lat, lng)
+            }
+        } catch (e: Exception) {
+            Log.e("MapUpdate", "Error parsing coordinates: $coordinates", e)
+        }
+        return null
     }
 
     private fun startFetchingTelemetry() {
@@ -86,27 +107,20 @@ class DashboardFragment : Fragment(), OnMapReadyCallback {
 
 
                         try {
-                            val coordinates = data.gpsCoordinates.split(",")
-                            if (coordinates.size == 2) {
-                                val lat = coordinates[0].trim().toDoubleOrNull()
-                                val lng = coordinates[1].trim().toDoubleOrNull()
-
-                                Log.d("MapUpdate", "Parsed coordinates - lat: $lat, lng: $lng")
-
-                                if (lat != null && lng != null) {
-                                    val newLocation = LatLng(lat, lng)
-                                    Log.d("MapUpdate", "Moving to new location: $newLocation")
+                            val newLocation = parseCoordinates(data.gpsCoordinates)
+                            if (newLocation != null) {
+                                Log.d("MapUpdate", "Moving to new location: $newLocation")
 
 
-                                    currentMarker?.position = newLocation
+                                currentMarker?.position = newLocation
 
 
-                                    mMap.animateCamera(CameraUpdateFactory.newLatLng(newLocation))
-                                } else {
-                                    Log.e("MapUpdate", "Failed to parse coordinates: ${data.gpsCoordinates}")
-                                }
+                                mMap.animateCamera(CameraUpdateFactory.newLatLng(newLocation))
                             } else {
-                                Log.e("MapUpdate", "Invalid coordinates format: ${data.gpsCoordinates}")
+                                Log.e(
+                                    "MapUpdate",
+                                    "Failed to parse coordinates: ${data.gpsCoordinates}"
+                                )
                             }
                         } catch (e: Exception) {
                             Log.e("MapUpdate", "Error updating map location", e)
